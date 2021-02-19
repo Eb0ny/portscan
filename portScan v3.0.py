@@ -185,7 +185,6 @@ class PortScaner(object):
         except Exception as e:
             print("%s,%s" % (self, e))
 
-
     def cmdline(self):
         arg = argparse.ArgumentParser(description='Ebony first portScaner')
 
@@ -220,15 +219,15 @@ class PortScaner(object):
 def main():
     startTime = time.time()
     portScan = PortScaner()
-    logo = portScan.GetLogo() # 获取logo
-    args = portScan.cmdline() # 获取参数
+    logo = portScan.GetLogo()  # 获取logo
+    args = portScan.cmdline()  # 获取参数
 
     portQueue = queue.Queue()
     threadNum = args.get('threads')  # 线程数量
     threads = []  # 保存新线程
-    top = args.get('top') # 获取 top
+    top = args.get('top')  # 获取 top
 
-    ip = args.get('ip') # 获取ip
+    ip = args.get('ip')  # 获取ip
     startPort = args.get('start')
     endPort = args.get('end')
     if startPort is None and endPort is None:
