@@ -5,6 +5,7 @@ import socket
 import sys
 import threading
 import time
+import argparse
 
 
 class PortScaner(object):
@@ -185,19 +186,57 @@ class PortScaner(object):
             print("%s,%s" % (self, e))
 
 
+    def cmdline(self):
+        arg = argparse.ArgumentParser(description='Ebony first portScaner')
+
+        arg.add_argument('ip', type=str, help='target ip')
+        arg.add_argument('--top', type=int, dest='top', default=None, help='top portList', choices=(50, 100, 1000))
+        arg.add_argument('--start', type=int, dest='start', help='start port')
+        arg.add_argument('--end', type=int, dest='end', help='end port')
+        arg.add_argument('--threads', type=int, dest='threads', default=100, help='thread number')
+
+        arg = arg.parse_args()
+        # print(arg)
+        # print('argparse.args=', arg , type(arg))
+        # print('name = %s' % arg.)
+        d = arg.__dict__
+        # print(d.get('ip'))
+        # for key, value in d.items():
+        #     print('%s = %s' % (key, value))
+        return d
+
+    def GetLogo(self):
+        logo = ''' 
+        _____   _____   _____    _____   _____   _____       ___   __   _
+        |  _  \ /  _  \ |  _  \  |_   _| /  ___/ /  ___|     /   | |  \ | |
+        | |_| | | | | | | |_| |    | |   | |___  | |        / /| | |   \| |
+        |  ___/ | | | | |  _  /    | |   \___  \ | |       / / | | | |\   |
+        | |     | |_| | | | \ \    | |    ___| | | |___   / /  | | | | \  |
+        |_|     \_____/ |_|  \_\   |_|   /_____/ \_____| /_/   |_| |_|  \_|  v3.0
+        '''
+        return logo
+
+
 def main():
     startTime = time.time()
     portScan = PortScaner()
+    logo = portScan.GetLogo() # 获取logo
+    args = portScan.cmdline() # 获取参数
+
     portQueue = queue.Queue()
-    threadNum = 100  # 线程数量
+    threadNum = args.get('threads')  # 线程数量
     threads = []  # 保存新线程
-    top = 50
+    top = args.get('top') # 获取 top
 
-    ip = '127.0.0.1'
-    # ip = portScan.getIpByName(ip)
-    # print(ip)
-    portList = portScan.GetPortList(top=top)
+    ip = args.get('ip') # 获取ip
+    startPort = args.get('start')
+    endPort = args.get('end')
+    if startPort is None and endPort is None:
+        portList = portScan.GetPortList(top=top)
+    else:
+        portList = portScan.GetPortList(startPort, endPort)
 
+    print(logo)
     for port in portList:
         portQueue.put(port)
     for t in range(threadNum):
