@@ -1,6 +1,7 @@
-import whois, pprint
-import socket
 import os
+import socket
+import pprint
+import whois
 
 
 def ipWhois(ip):
@@ -9,6 +10,7 @@ def ipWhois(ip):
     s.send(ip.encode('utf-8') + b'\r\n')
     result = bytearray()
     while True:
+        # 循环获取结果
         data = s.recv(10000)
         if not len(data):
             break
@@ -19,6 +21,7 @@ def ipWhois(ip):
     # print(type(result))
     filename = ip + '.txt'
     f = open(filename, 'wb')
+    # 写入文件
     f.write(result.encode('utf-8'))
     f.close()
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -33,6 +36,7 @@ def urlWhois(url):
     data = str(data)
     # print(data)
     f = open(filename, 'wb')
+    # 写入文件
     f.write(data.encode('utf-8'))
     f.close()
     base_dir = os.path.dirname(os.path.abspath(__file__))
