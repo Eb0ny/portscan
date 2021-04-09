@@ -43,4 +43,4 @@ def urlWhois(url):
     file_path = os.path.join(base_dir, filename)
     print('查询结果 ' + file_path)
 
-
+urlWhois('dccdanbao.duoqudao.lklkkiki.com')

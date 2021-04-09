@@ -1,10 +1,9 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import sys
 import dns.resolver
-import urllib
-import  socket
-from urllib.parse import urlparse
+import urllib2
 
 
 class CdnCheck(object):
@@ -14,7 +13,6 @@ class CdnCheck(object):
         self.url = url
         self.cnames = []
         self.headers = []
-        self.iplist = []
 
     def get_cnames(self): # get all cname
         furl = urlparse(self.url)
@@ -24,9 +22,7 @@ class CdnCheck(object):
         rsv = dns.resolver.Resolver()
         # rsv.nameservers = ['114.114.114.114']
         try:
-            # print(1)
-            answer = dns.resolver.query(url, 'CNAME')
-
+            answer = dns.resolver.query(url,'CNAME')
         except Exception as e:
             self.cnames = None
             # print "ERROR: %s" % e
@@ -37,12 +33,10 @@ class CdnCheck(object):
 
     def get_cname(self,cname): # get cname
         try:
-            # print(1)
-            answer = dns.resolver.query(cname, 'CNAME')
+            answer = dns.resolver.query(cname,'CNAME')
             cname = [_.to_text() for _ in answer][0]
             self.cnames.append(cname)
             self.get_cname(cname)
-
         except dns.resolver.NoAnswer:
             pass
 
@@ -57,7 +51,7 @@ class CdnCheck(object):
             self.headers = headers
 
     def matched(self, context, *args): # Matching string
-        if not isinstance(context, str):
+        if not isinstance(context, basestring):
             context = str(context)
 
         func = lambda x, y: y in x
@@ -70,35 +64,19 @@ class CdnCheck(object):
                 return pattern
         return False
 
-    def getIplist(self):
-        ipList = []
-        url = urlparse(self.url).netloc
-        addrs = socket.getaddrinfo(url, None)
-        for item in addrs:
-            if item[4][0] not in self.iplist:
-                self.iplist.append(item[4][0])
-        # print (self.iplist)
-        return self.iplist
-
-
     def check(self):
         flag = None
         self.get_cnames()
         self.get_headers()
-        if len(self.getIplist()) > 1:
-            if self.cnames:
-                # print self.cnames
-                flag = self.matched(self.cnames,*self.cdn['cname'])
-                if flag:
-                    return {'Status':True, 'CNAME': self.cnames, 'CDN':self.cdn['cname'].get(flag)}
-            if not flag and self.headers:
-                flag = self.matched(self.headers,*self.cdn['headers'])
-                if flag :
-                    return {'Status':True, 'CNAME':self.cnames,'CDN':'unknown'}
-            return {'Status': True, 'CNAME': self.cnames, 'iplist': self.iplist, 'CDN': 'unknown'}
-
-
-
+        if self.cnames:
+            # print self.cnames
+            flag = self.matched(self.cnames,*self.cdn['cname'])
+            if flag:
+                return {'Status':True, 'CDN':self.cdn['cname'].get(flag)}
+        if not flag and self.headers:
+            flag = self.matched(self.headers,*self.cdn['headers'])
+            if flag:
+                return {'Status':True, 'CDN':'unknown'}
         return {'Status':False, 'CNAME':self.cnames, 'Headers':self.headers}
 
     def cdninfo(self):
@@ -230,13 +208,12 @@ class CdnCheck(object):
                 'xgslb.net':u'Webluker', # WebLuker
                 'ytcdn.net':u'Akamai', # Akamai
                 'yunjiasu-cdn':u'Baiduyun', # 百度云加速
-                'kunlunsl.com':u'ALiyun', # 阿里云
             }
         }
 
 
 if __name__ == '__main__':
-    #url = "http://dccdanbao.duoqudao.lklkkiki.com"
-    url = sys.argv[1]
+    url = "http://www.baidu.com"
+    #url = sys.argv[1]
     cdn = CdnCheck(url)
     print(cdn.check())

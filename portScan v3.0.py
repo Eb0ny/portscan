@@ -37,7 +37,7 @@ class PortScaner(object):
                     s.settimeout(timeout)
                     resultCode = s.connect_ex((ip, port))
                     if resultCode == 0:
-                        sys.stdout.write(OPEN_MSG % port)
+                        sys.stdout.write(`OPEN_MSG` % port)
                 except Exception as e:
                     print(e)
                 finally:
@@ -188,7 +188,7 @@ class PortScaner(object):
     def cmdline(self):
         arg = argparse.ArgumentParser(description='Ebony first portScaner')
 
-        arg.add_argument('-p', type=str, help='target ip')
+        arg.add_argument('ip', type=str, help='target ip')
         arg.add_argument('--top', type=int, dest='top', default=None, help='top portList', choices=(50, 100, 1000))
         arg.add_argument('--start', type=int, dest='start', help='start port')
         arg.add_argument('--end', type=int, dest='end', help='end port')
